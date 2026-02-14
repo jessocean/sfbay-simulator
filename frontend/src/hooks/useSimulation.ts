@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import axios from "axios";
 import {
   PolicyConfig,
   ParseResponse,
@@ -30,6 +31,13 @@ export function useSimulation() {
 
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const extractErrorMessage = (err: unknown, fallback: string): string => {
+    if (axios.isAxiosError(err) && err.response?.data?.detail) {
+      return err.response.data.detail;
+    }
+    return err instanceof Error ? err.message : fallback;
+  };
+
   const applyParseResponse = useCallback(
     (res: ParseResponse, userText: string) => {
       setConfig(res.config);
@@ -58,9 +66,7 @@ export function useSimulation() {
         const res = await apiParsePolicy(text);
         applyParseResponse(res, text);
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to parse policy";
-        setError(message);
+        setError(extractErrorMessage(err, "Failed to parse policy"));
       } finally {
         setIsLoading(false);
       }
@@ -77,9 +83,7 @@ export function useSimulation() {
         const res = await apiRefinePolicy(text, config);
         applyParseResponse(res, text);
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to refine policy";
-        setError(message);
+        setError(extractErrorMessage(err, "Failed to refine policy"));
       } finally {
         setIsLoading(false);
       }
@@ -120,9 +124,7 @@ export function useSimulation() {
       });
       pollStatus(res.run_id);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to start simulation";
-      setError(message);
+      setError(extractErrorMessage(err, "Failed to start simulation"));
     } finally {
       setIsLoading(false);
     }
