@@ -9,3 +9,5 @@ backend/data/raw/
 backend/data/processed/
 backend/data/results/
 .DS_Store
+.playwright-mcp/
+*.png
