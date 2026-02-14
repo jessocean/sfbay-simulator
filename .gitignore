@@ -1,0 +1,11 @@
+.env
+*.env
+__pycache__/
+*.pyc
+node_modules/
+dist/
+.vite/
+backend/data/raw/
+backend/data/processed/
+backend/data/results/
+.DS_Store
